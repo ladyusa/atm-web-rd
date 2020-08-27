@@ -1,7 +1,9 @@
 package th.go.rd.atm.service;
 
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
+import th.go.rd.atm.data.CustomerRepository;
 import th.go.rd.atm.model.Customer;
 
 import javax.annotation.PostConstruct;
@@ -11,30 +13,29 @@ import java.util.List;
 @Service
 public class CustomerService {
 
-    private ArrayList<Customer> customerList;
+    private CustomerRepository repository;
 
-    @PostConstruct
-    public void postContruct() {
-        customerList = new ArrayList<>();
+    public CustomerService(CustomerRepository repository) {
+        this.repository = repository;
     }
 
     public void createCustomer(Customer customer) {
         // .... hash pin ....
         String hashPin = hash(customer.getPin());
         customer.setPin(hashPin);
-        customerList.add(customer);
+        repository.save(customer);
     }
 
     public List<Customer> getCustomers() {
-        return new ArrayList<>(this.customerList);
+        return repository.findAll();
     }
 
     public Customer findCustomer(int id) {
-        for (Customer c : customerList) {
-            if (c.getId() == id)
-                return c;
+        try {
+            return repository.findById(id);
+        } catch(EmptyResultDataAccessException e) {
+            return null;
         }
-        return null;
     }
 
     public Customer checkPin(Customer inputCustomer) {
@@ -45,11 +46,9 @@ public class CustomerService {
         // 2. ถ้าเจอ ตรวจสอบ pin และถ้า pin ตรง คืนค่า customer นี้
         if (storedCustomer != null) {
             String storedPin = storedCustomer.getPin();
-            System.out.println(storedPin);
             if (BCrypt.checkpw(inputCustomer.getPin(), storedPin)) {
-                System.out.println("matched");
                 return storedCustomer;
-            } else System.out.println("not matched");
+            }
         }
         // 3. ถ้า id หรือ pin ไม่ตรง คืนค่าเป็น null
         return null;
