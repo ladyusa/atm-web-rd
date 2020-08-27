@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="https://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Customer</title>
-    <link th:rel="stylesheet" th:href="@{css/bootstrap.min.css}">
-</head>
-<body>
+<html xmlns:layout="http://www.w3.org/1999/xhtml"
+      layout:decorate="~{fragments/main_layout}"
+      xmlns:th="https://www.thymeleaf.org">
 
-<div class="container">
+<div layout:fragment="content" class="container">
     <h1>Register Customer</h1>
     <form th:action="@{/customer}" method="POST">
         <div class="form-group">
@@ -51,5 +47,3 @@
 
 </div>
 
-</body>
-</html>
